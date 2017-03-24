@@ -126,10 +126,9 @@ class User_model extends CI_Model {
 					->get();
 
 		if ($result->num_rows() == 1) {
-			
 			return $result->result();
 		}else {
-			return NULL;
+			return FALSE;
 		}
 	}
 

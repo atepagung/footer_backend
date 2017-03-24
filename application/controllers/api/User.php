@@ -47,7 +47,6 @@ class User extends REST_Controller {
 
 	public function check_get() {
 		
-
 		$this->set_status(TRUE);
 
 		$dummy = $this->User_model->check_select();
@@ -104,6 +103,9 @@ class User extends REST_Controller {
 
 
 	public function register_post() {
+
+		$this->set_status(FALSE);
+
 		$username = $this->post('username');
 		$fullname = $this->post('fullname');
 		$nickname = $this->post('nickname');
@@ -126,7 +128,7 @@ class User extends REST_Controller {
 
 		$token = $this->User_model->registration($data);
 
-		if ($token) {
+		if ($token != FALSE) {
 			$link_confirm = "http://localhost/footer/index.php/api/User/confirm/".$token;
 			$link_delete = "http://localhost/footer/index.php/api/User/delete/".$token;
 
@@ -147,15 +149,16 @@ class User extends REST_Controller {
 				$this->fetched_data = $result;
 				$this->assign_data();
 				$this->set_status(TRUE);
-
-				if ($this->check_status()) {
-					$status_code = REST_Controller::HTTP_OK;
-				}else {
-					$status_code  = REST_Controller::HTTP_NOT_FOUND;
-				}
 			}
+		}else {
+			$this->set_status(FALSE, 'username telah terdaftar');
 		}
 
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		}else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
 		$this->response($this->response_data, $status_code);
 	}
 
@@ -168,6 +171,9 @@ class User extends REST_Controller {
 	}
 
 	public function login_post() {
+
+		$this->set_status(FALSE);
+
 		$token = $this->post('token');
 
 		if ($token === NULL) {
@@ -178,7 +184,7 @@ class User extends REST_Controller {
 				$result['status_login'] = 0;
 				$this->fetched_data = $result;
 				$this->assign_data();
-				$status_code  = REST_Controller::HTTP_NOT_FOUND;
+				$this->set_status(FALSE, 'username atau password kosong');
 			}else {
 				$data = array(
 					'username' => $username,
@@ -186,36 +192,33 @@ class User extends REST_Controller {
 				);
 
 				$token = $this->User_model->login($data);
-
-				if ($token != NULL) {
+				
+				if ($token != FALSE) {
 					$output['token'] = $token;
 					$this->fetched_data = $output;
 					$this->assign_data();
 					$this->set_status(TRUE);
 
-					if ($this->check_status()) {
-						$status_code = REST_Controller::HTTP_OK;
-					}
-					else {
-						$status_code  = REST_Controller::HTTP_NOT_FOUND;
-					}
 				}else {
-					$status_code  = REST_Controller::HTTP_NOT_FOUND;
+					$this->set_status(FALSE, 'username atau password salah');
 				}
 			}
-
 		}else {
-			$this->fetched_data = $this->User_model->check_token($token);
-			$this->assign_data();
-			$this->set_status(TRUE);
-			if ($this->check_status()) {
-				$status_code = REST_Controller::HTTP_OK;
-			}
-			else {
-				$status_code  = REST_Controller::HTTP_NOT_FOUND;
+			$output = $this->User_model->check_token($token);
+			if ($output != FALSE) {
+				$this->fetched_data = $output;
+				$this->assign_data();
+				$this->set_status(TRUE);
+			}else {
+				$this->set_status(FALSE, 'token tidak ditemukan');
 			}
 		}
 
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		}else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
 		$this->response($this->response_data, $status_code);
 	}
 
