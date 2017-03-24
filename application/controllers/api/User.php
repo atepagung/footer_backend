@@ -263,7 +263,13 @@ class User extends REST_Controller {
 	}
 
 	public function like_get($ID_restaurant, $token) {
-		$this->User_model->like($ID_restaurant, $token);
+		$stat = 'love';
+		$this->User_model->likeOrFav($ID_restaurant, $token, $stat);
+	}
+
+	public function fav_get($ID_restaurant, $token) {
+		$stat = 'favorite';
+		$this->User_model->likeOrFav($ID_restaurant, $token, $stat);
 	}
 
 }

@@ -189,7 +189,7 @@ class User_model extends CI_Model {
 		return $query->result();
 	}
 
-	public function like($ID_restaurant, $token) {
+	public function likeOrFav($ID_restaurant, $token, $stat) {
 
 		$ID_user = $this->db
 						->select('ID_user')
@@ -198,20 +198,24 @@ class User_model extends CI_Model {
 						->get()->result()[0]->ID_user;
 
 		$condition = "link_users_restaurants.ID_restaurant = '$ID_restaurant' AND link_users_restaurants.ID_user = '$ID_user'";
-		$like = $this->db
-					->select('love')
+		$likeOrFav = $this->db
+					->select($stat)
 					->from('link_users_restaurants')
 					->where($condition)
 					->get();
-		if ($like->num_rows() == 1) {
-			$like = $like->result()[0]->love;
+		if ($likeOrFav->num_rows() == 1) {
+			$likeOrFav = $likeOrFav->result()[0]->$stat;
 		}else {
-			$like = 0;
+			$likeOrFav = 0;
 		}
 		
-		if ($like == 0) {
-			$query = $this->db->query("");
+		if ($likeOrFav == 0) {
+			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 1 WHERE ID_restaurant = $ID_restaurant AND ID_user = ID_user");
+		}else {
+			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 0 WHERE ID_restaurant = $ID_restaurant AND ID_user = ID_user");
 		}
+
+		die();
 
 	}
 
