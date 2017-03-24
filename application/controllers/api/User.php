@@ -146,14 +146,16 @@ class User extends REST_Controller {
 				$result['status'] = 1;
 				$this->fetched_data = $result;
 				$this->assign_data();
+				$this->set_status(TRUE);
 
 				if ($this->check_status()) {
 					$status_code = REST_Controller::HTTP_OK;
+				}else {
+					$status_code  = REST_Controller::HTTP_NOT_FOUND;
 				}
 			}
 		}
 
-		$status_code  = REST_Controller::HTTP_NOT_FOUND;
 		$this->response($this->response_data, $status_code);
 	}
 
@@ -187,13 +189,10 @@ class User extends REST_Controller {
 
 				if ($token != NULL) {
 					$output['token'] = $token;
-					$this->fetched_data = $result;
+					$this->fetched_data = $output;
 					$this->assign_data();
+					$this->set_status(TRUE);
 
-					echo "<pre>";
-					var_dump($token);
-					echo "</pre>";
-					die();
 					if ($this->check_status()) {
 						$status_code = REST_Controller::HTTP_OK;
 					}
@@ -208,7 +207,7 @@ class User extends REST_Controller {
 		}else {
 			$this->fetched_data = $this->User_model->check_token($token);
 			$this->assign_data();
-
+			$this->set_status(TRUE);
 			if ($this->check_status()) {
 				$status_code = REST_Controller::HTTP_OK;
 			}
