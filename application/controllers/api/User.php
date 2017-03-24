@@ -185,11 +185,15 @@ class User extends REST_Controller {
 
 				$token = $this->User_model->login($data);
 
-				if ($token) {
+				if ($token != NULL) {
 					$output['token'] = $token;
 					$this->fetched_data = $result;
 					$this->assign_data();
 
+					echo "<pre>";
+					var_dump($token);
+					echo "</pre>";
+					die();
 					if ($this->check_status()) {
 						$status_code = REST_Controller::HTTP_OK;
 					}
