@@ -262,5 +262,9 @@ class User extends REST_Controller {
 		$this->response($this->response_data, $status_code);
 	}
 
+	public function like_get($ID_restaurant, $token) {
+		$this->User_model->like($ID_restaurant, $token);
+	}
+
 }
  ?>

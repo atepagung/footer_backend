@@ -165,11 +165,58 @@ class User_model extends CI_Model {
 
 		}else {
 			$ID_user = $res[0]->ID_user;
-			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo, L.love, L.favorite, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R, link_users_restaurants L WHERE L.ID_user = $ID_user AND R.ID_restaurant = L.ID_restaurant ORDER BY Popularity DESC");
+			/*$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo, L.love, L.favorite, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R, link_users_restaurants L WHERE L.ID_user = $ID_user AND R.ID_restaurant = L.ID_restaurant ORDER BY Popularity DESC");*/
+			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R WHERE 1 ORDER BY Popularity DESC");
+
+			foreach ($query->result() as $key => $value) {
+				$ID_restaurant = $query->result()[$key]->ID_restaurant;
+				$q = $this->db->query("SELECT love, favorite FROM link_users_restaurants WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
+				
+				echo "<pre>";
+				var_dump($q->result());
+				echo "</pre>";
+				die();
+
+				if ($q->result() != NULL) {
+					$love = $q->result()[0]->love;
+					$favorite = $q->result()[0]->favorite;
+				}else {
+					$love = 0;
+					$favorite = 0;
+				}
+				$query->result()[$key]->love = $love;
+				$query->result()[$key]->favorite = $favorite;
+			}
 		}
 
 
 		return $query->result();
+	}
+
+	public function like($ID_restaurant, $token) {
+
+		$ID_user = $this->db
+						->select('ID_user')
+						->from('users')
+						->where("token = '$token'")
+						->get()->result()[0]->ID_user;
+
+		$condition = "link_users_restaurants.ID_restaurant = '$ID_restaurant' AND link_users_restaurants.ID_user = '$ID_user'";
+		$like = $this->db
+					->select('love')
+					->from('link_users_restaurants')
+					->where($condition)
+					->get();
+		if ($like->num_rows() == 1) {
+			$like = $like->result()[0]->love;
+		}else {
+			$like = 0;
+		}
+		
+		if (condition) {
+			# code...
+		}
+
 	}
 
 }
