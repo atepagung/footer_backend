@@ -145,10 +145,10 @@ class User extends REST_Controller {
 
 			
 			if ($this->send_mail($output)) {
-				$result['status'] = 1;
+				
 				$this->fetched_data = $result;
 				$this->assign_data();
-				$this->set_status(TRUE);
+				$this->set_status(TRUE, 'yeay berhasil');
 			}
 		}else {
 			$this->set_status(FALSE, 'username telah terdaftar');
