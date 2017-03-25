@@ -377,7 +377,24 @@ class User extends REST_Controller {
 	}
 
 	public function select_favorite_get($token) {
-		
+		$result = $this->User_model->select_favorite($token);
+
+		if ($result) {
+			$this->fetched_data = $result;
+			$this->assign_data();
+			$this->set_status(TRUE);
+		}else {
+			$this->set_status(FALSE, 'There is no favorite');
+		}
+
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		}
+		else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+
+		$this->response($this->response_data, $status_code);
 	}
 
 }

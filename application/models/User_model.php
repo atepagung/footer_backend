@@ -171,7 +171,7 @@ class User_model extends CI_Model {
 		}else {
 			$ID_user = $res[0]->ID_user;
 			/*$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo, L.love, L.favorite, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R, link_users_restaurants L WHERE L.ID_user = $ID_user AND R.ID_restaurant = L.ID_restaurant ORDER BY Popularity DESC");*/
-			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R WHERE 1 ORDER BY Popularity DESC");
+			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R WHERE 1 ORDER BY Popularity DESC");
 
 			foreach ($query->result() as $key => $value) {
 				$ID_restaurant = $query->result()[$key]->ID_restaurant;
@@ -276,9 +276,18 @@ class User_model extends CI_Model {
 		return $result;
 	}
 
-	/*public function select_favorite($token) {
-		
-	}*/
+	public function select_favorite($token) {
+
+		$ID_user = $this->db
+						->select('ID_user')
+						->from('users')
+						->where("token = '$token'")
+						->get()->result()[0]->ID_user;
+
+		$result = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo FROM restaurants R, link_users_restaurants WHERE link_users_restaurants.ID_user = $ID_user AND link_users_restaurants.favorite = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant");
+
+		return $result->result();
+	}
 
 }
  ?>
