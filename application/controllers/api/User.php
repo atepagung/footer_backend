@@ -197,8 +197,8 @@ class User extends REST_Controller {
 				if ($token == 'account hasnt confirmed') {
 					$this->set_status(FALSE, 'account hasn\'t confirmed');
 				}elseif ($token != FALSE) {
-					$output['token'] = $token;
-					$this->fetched_data = $output;
+					//$output['token'] = $token;
+					$this->fetched_data = $token;
 					$this->assign_data();
 					$this->set_status(TRUE);
 				}else {
