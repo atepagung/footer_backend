@@ -87,6 +87,11 @@ class User_model extends CI_Model {
 		if ($query->num_rows() == 1) {
 			$password = $data['password'];
 			if (password_verify($password, $query->row('password'))) {
+
+				if ($query->row('status') == 0) {
+					return 'account hasnt confirmed';
+				}
+
 				$token = $query->row('token');
 				$id = $query->row('ID_user');
 				$fullname = $query->row('fullname');
@@ -215,9 +220,65 @@ class User_model extends CI_Model {
 			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 0 WHERE ID_restaurant = $ID_restaurant AND ID_user = ID_user");
 		}
 
-		die();
-
+		if ($query) {
+			return TRUE;
+		}else {
+			return FALSE;
+		}
 	}
+
+	public function select_email($token) {
+		$email = $this->db
+					->select('email')
+					->from('users')
+					->where("token = '$token'")
+					->get()->result()[0]->email;
+
+		if (!empty($email)) {
+			return $email;
+		}else {
+			return FALSE;
+		}
+	}
+
+	public function change_pass($old_pass, $new_pass, $token) {
+		$query = $this->db
+					->select('*')
+					->from('users')
+					->where("token = '$token'")
+					->get();
+
+		if ($query->num_rows() == 1) {
+			$password = $old_pass;
+			if (password_verify($password, $query->row('password'))) {
+				
+				$result = $this->db
+							->set('password', $new_pass)
+							->where("token = '$token'")
+							->update('users');
+
+
+				return $result;
+			}else {
+				return FALSE;
+			}
+		}else {
+			return FALSE;
+		}
+	}
+
+	public function forgot_pass($new_pass, $token) {
+		$data['password'] = $new_pass;
+		$result = $this->db
+					->where('token', $token)
+					->update('users', $data);
+
+		return $result;
+	}
+
+	/*public function select_favorite($token) {
+		
+	}*/
 
 }
  ?>

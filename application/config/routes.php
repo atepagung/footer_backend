@@ -70,14 +70,14 @@ $route['api/User/check'] = 'api/User/check';
 | USER ROUTE
 | -------------------------------------------------------------------------
 */
-//register
+//register_post
 $route['api/user/register'] = 'api/User/register';
 //confirm
 $route['api/user/confirm/(:any)'] = 'api/User/confirm/$1'; //$1 = token
 //delete
 $route['api/user/delete/(:any)'] = 'api/User/delete/$1'; //$1 = token
 
-//login
+//login_post
 $route['api/user/login'] = 'api/user/login';
 
 
@@ -99,9 +99,13 @@ $route['api/user/all_restaurant/(:any)'] = 'api/User/all_restaurant/$1'; //$1 = 
 $route['api/user/like/(:any)/(:any)'] = 'api/User/like/$1/$2'; //$1 = ID_restaurant		$2 = token
 //favorite
 $route['api/user/fav/(:any)/(:any)'] = 'api/User/fav/$1/$2'; //$1 = ID_restaurant		$2 = token
-//feedback
-
+//feedback_post
+$route['api/user/feedback'] = 'api/User/feedback';
 //forgot password
-
+$route['api/user/forgot/(:any)'] = 'api/User/forgot/$1'; //$1 = token
+//new password
+$route['api/User/new_pass/'] = 'api/User/new_pass/'; //$1 = token
 //change password
-
+$route['api/User/change_pass/(:any)'] = 'api/User/change_pass/$1'; //$1 = token
+//get favorite
+$route['api/User/select_favorite/(:any)'] = 'api/User/select_favorite/$1'; //$1 = token

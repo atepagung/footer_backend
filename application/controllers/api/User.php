@@ -145,10 +145,11 @@ class User extends REST_Controller {
 
 			
 			if ($this->send_mail($output)) {
-				
-				$this->fetched_data = $result;
+				$this->fetched_data = $token;
 				$this->assign_data();
-				$this->set_status(TRUE, 'yeay berhasil');
+				$this->set_status(TRUE, 'email sent successfully');
+			}else {
+				$this->set_status(FALSE, 'Can\'t to send mail');
 			}
 		}else {
 			$this->set_status(FALSE, 'username telah terdaftar');
@@ -193,12 +194,13 @@ class User extends REST_Controller {
 
 				$token = $this->User_model->login($data);
 				
-				if ($token != FALSE) {
+				if ($token == 'account hasnt confirmed') {
+					$this->set_status(FALSE, 'account hasn\'t confirmed');
+				}elseif ($token != FALSE) {
 					$output['token'] = $token;
 					$this->fetched_data = $output;
 					$this->assign_data();
 					$this->set_status(TRUE);
-
 				}else {
 					$this->set_status(FALSE, 'username atau password salah');
 				}
@@ -264,12 +266,118 @@ class User extends REST_Controller {
 
 	public function like_get($ID_restaurant, $token) {
 		$stat = 'love';
-		$this->User_model->likeOrFav($ID_restaurant, $token, $stat);
+		$result = $this->User_model->likeOrFav($ID_restaurant, $token, $stat);
+
+		if ($result) {
+			$this->set_status(TRUE,'like');
+		}else {
+			$this->set_status(FALSE,'error');
+		}
+
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		}else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+
+		$this->response($this->response_data, $status_code);
+
 	}
 
 	public function fav_get($ID_restaurant, $token) {
 		$stat = 'favorite';
-		$this->User_model->likeOrFav($ID_restaurant, $token, $stat);
+		$result = $this->User_model->likeOrFav($ID_restaurant, $token, $stat);
+
+		if ($result) {
+			$this->set_status(TRUE,'favorite');
+		}else {
+			$this->set_status(FALSE,'error');
+		}
+
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		}else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+
+		$this->response($this->response_data, $status_code);
+	}
+
+	public function feedback_post() {
+		$this->set_status(FALSE);
+		$feedback = $this->post('feedback');
+		$output = array(
+			'email' => 'footer.coin@gmail.com',
+			'message' => $feedback,
+			'subject' => 'feedback'
+		);
+
+		if ($this->send_mail($output)) {
+			$this->set_status(TRUE, 'feedback accepted');
+		}else {
+			$this->set_status(FALSE, 'problem with email');
+		}
+
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		}else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+
+		$this->response($this->response_data, $status_code);
+	}
+
+	public function forgot_get($token) {
+		$link = "http://localhost/footer_backend/index.php/api/User/new_pass/?token=$token";
+		$message = "to input your new password, please <a href='$link'>click here</a>";
+		$output = array(
+			'email' => $this->User_model->select_email($token),
+			'message' => $message,
+			'subject' => 'Forgot Password'
+		);
+
+		if ($this->send_mail($output)) {
+				$this->fetched_data = $token;
+				$this->assign_data();
+				$this->set_status(TRUE, 'email sent successfully');
+		}else {
+				$this->set_status(FALSE, 'Can\'t to send mail');
+		}
+
+		$this->response($this->response_data, $status_code);
+	}
+
+	public function new_pass_get() {
+		$this->load->view('new_pass');
+	}
+
+	public function change_pass_post($token) {
+		
+		$old_pass = $this->post('old_pass');
+		$new_pass = password_hash($this->post('new_pass'),PASSWORD_DEFAULT);
+
+		if (!empty($old_pass)) {
+			$result = $this->User_model->change_pass($old_pass, $new_pass, $token);
+			if ($result) {
+				$this->set_status(TRUE, 'Password Changed');
+				$status_code = REST_Controller::HTTP_OK;
+			}else {
+				$this->set_status(FALSE, 'There is error');
+				$status_code  = REST_Controller::HTTP_NOT_FOUND;
+			}
+			$this->response($this->response_data, $status_code);
+		}else {
+			$result = $this->User_model->forgot_pass($new_pass, $token);
+			if ($result) {
+				echo "Success";
+			}else {
+				echo "There are error";
+			}
+		}
+	}
+
+	public function select_favorite_get($token) {
+		
 	}
 
 }
