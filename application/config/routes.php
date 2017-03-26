@@ -109,3 +109,5 @@ $route['api/User/new_pass/'] = 'api/User/new_pass/'; //$1 = token
 $route['api/User/change_pass/(:any)'] = 'api/User/change_pass/$1'; //$1 = token
 //get favorite
 $route['api/User/select_favorite/(:any)'] = 'api/User/select_favorite/$1'; //$1 = token
+//search
+$route['api/User/search/(:any)'] = 'api/User/search/$1'; //$1 = categories

@@ -397,5 +397,27 @@ class User extends REST_Controller {
 		$this->response($this->response_data, $status_code);
 	}
 
+	public function search_post($categories) {
+		$keySearch = $this->post('keySearch');
+		$keyArray = explode(" ",$keySearch);
+
+		$keySearch = '%';
+
+		foreach ($keyArray as $value) {
+			$keySearch = $keySearch.$value.'%';
+		}
+
+		$this->set_status(TRUE);
+		$this->fetched_data = $this->User_model->search($keySearch, $categories);
+		$this->assign_data();
+	 
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		} else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+		$this->response($this->response_data, $status_code);
+	}
+
 }
  ?>

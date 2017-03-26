@@ -215,9 +215,9 @@ class User_model extends CI_Model {
 		}
 		
 		if ($likeOrFav == 0) {
-			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 1 WHERE ID_restaurant = $ID_restaurant AND ID_user = ID_user");
+			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 1 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
 		}else {
-			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 0 WHERE ID_restaurant = $ID_restaurant AND ID_user = ID_user");
+			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 0 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
 		}
 
 		if ($query) {
@@ -287,6 +287,18 @@ class User_model extends CI_Model {
 		$result = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo FROM restaurants R, link_users_restaurants WHERE link_users_restaurants.ID_user = $ID_user AND link_users_restaurants.favorite = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant");
 
 		return $result->result();
+	}
+
+	public function search($keySearch, $categories) {
+		if ($categories == 'restaurants') {
+			$SQL = "SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo FROM restaurants R WHERE restaurant_name LIKE '$keySearch'";	
+		} else {
+			$SQL = "SELECT foods.food_name, restaurants.restaurant_name FROM foods, restaurants WHERE foods.food_name LIKE '$keySearch' AND restaurants.ID_restaurant = foods.ID_restaurant";
+		}
+		
+		$query = $this->db->query($SQL);
+
+		return $query->result();
 	}
 
 }
