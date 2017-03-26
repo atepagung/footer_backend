@@ -419,5 +419,41 @@ class User extends REST_Controller {
 		$this->response($this->response_data, $status_code);
 	}
 
+	public function select_user_get($token) {
+		
+		$this->set_status(TRUE);
+		$this->fetched_data = $this->User_model->select_user($token);
+		$this->assign_data();
+	 
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		} else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+		$this->response($this->response_data, $status_code);
+	}
+
+	public function edit_photo_post($token) {
+		$photo = $this->post('photo');
+
+		$result = $this->User_model->edit_photo($token, $photo);
+
+		if ($result) {
+			$data['photo'] = $photo;
+			$this->set_status(TRUE);
+			$this->fetched_data = $data;
+			$this->assign_data();
+		}else {
+			$this->set_status(FALSE, 'ERROR');
+		}
+
+		if ($this->check_status()) {
+			$status_code = REST_Controller::HTTP_OK;
+		} else {
+			$status_code  = REST_Controller::HTTP_NOT_FOUND;
+		}
+		$this->response($this->response_data, $status_code);
+	}
+
 }
  ?>

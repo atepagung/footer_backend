@@ -76,6 +76,8 @@ $route['api/user/register'] = 'api/User/register';
 $route['api/user/confirm/(:any)'] = 'api/User/confirm/$1'; //$1 = token
 //delete
 $route['api/user/delete/(:any)'] = 'api/User/delete/$1'; //$1 = token
+//get_user_detail
+$route['api/user/select_user/(:any)'] = 'api/User/select_user/$1'; //$1 = token
 
 //login_post
 $route['api/user/login'] = 'api/user/login';
@@ -111,3 +113,7 @@ $route['api/User/change_pass/(:any)'] = 'api/User/change_pass/$1'; //$1 = token
 $route['api/User/select_favorite/(:any)'] = 'api/User/select_favorite/$1'; //$1 = token
 //search
 $route['api/User/search/(:any)'] = 'api/User/search/$1'; //$1 = categories
+//select user
+$route['api/User/select_user/(:any)'] = 'api/User/select_user/$1'; //$1 = token
+//edit photo user
+$route['api/User/edit_photo/(:any)'] = 'api/User/edit_photo/$1'; //$1 = token

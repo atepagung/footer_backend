@@ -301,5 +301,24 @@ class User_model extends CI_Model {
 		return $query->result();
 	}
 
+	public function select_user($token) {
+		$result = $this->db
+					->select('username, fullname, nickname, gender, email, photo')
+					->from('users')
+					->where("token = '$token'")
+					->get()->result();
+
+		return $result;
+	}
+
+	public function edit_photo($token, $photo) {
+		$query = $this->db
+					->set('photo', $photo)
+					->where("token = '$token'")
+					->update('users');
+
+		return $query;
+	}
+
 }
  ?>
