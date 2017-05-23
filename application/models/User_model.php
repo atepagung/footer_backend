@@ -147,8 +147,27 @@ class User_model extends CI_Model {
 			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.location_latitude, R.location_longitude, R.phone, R.open, R.close, R.photo, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R WHERE ID_restaurant = $ID_restaurant");
 		}else {
 			$ID_user = $res[0]->ID_user;
-			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.location_latitude, R.location_longitude, R.phone, R.open, R.close, R.photo, L.love, L.favorite, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R, link_users_restaurants L WHERE L.ID_user = $ID_user AND R.ID_restaurant = L.ID_restaurant AND R.ID_restaurant = $ID_restaurant");
+			/*$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.location_latitude, R.location_longitude, R.phone, R.open, R.close, R.photo, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R, link_users_restaurants L WHERE R.ID_restaurant = L.ID_restaurant AND R.ID_restaurant = $ID_restaurant");*/
+			$query = $this->db->query("SELECT R.ID_restaurant, R.restaurant_name, R.location, R.location_latitude, R.location_longitude, R.phone, R.open, R.close, R.photo, (SELECT COUNT(*) FROM link_users_restaurants WHERE link_users_restaurants.love = 1 AND link_users_restaurants.ID_restaurant = R.ID_restaurant) AS 'Popularity' FROM restaurants R WHERE R.ID_restaurant = 1");
+
+			
+			$ID_restaurant = $query->result()[0]->ID_restaurant;
+			
+			$q = $this->db->query("SELECT love, favorite FROM link_users_restaurants WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
+			
+			if ($q->result() != NULL) {
+				$love = $q->result()[0]->love;
+				$favorite = $q->result()[0]->favorite;
+			}else {
+				$love = 0;
+				$favorite = 0;
+			}
+			$query->result()[0]->love = $love;
+			$query->result()[0]->favorite = $favorite;
+	
 		}
+
+
 		
 		foreach ($query->result() as $key => $value) {
 			//$ID_restaurant = $query->result()[$key]->ID_restaurant;
@@ -211,13 +230,22 @@ class User_model extends CI_Model {
 		if ($likeOrFav->num_rows() == 1) {
 			$likeOrFav = $likeOrFav->result()[0]->$stat;
 		}else {
-			$likeOrFav = 0;
+			$likeOrFav = NULL;
 		}
 		
-		if ($likeOrFav == 0) {
-			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 1 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
+		if ($likeOrFav == NULL) {
+			/*$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 1 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");*/
+			if ($stat = 'love') {
+				$query = $this->db->query("INSERT INTO link_users_restaurants VALUES ($ID_user, $ID_restaurant, 1, 0)");
+			}else {
+				$query = $this->db->query("INSERT INTO link_users_restaurants VALUES ($ID_user, $ID_restaurant, 0, 1)");
+			}
 		}else {
-			$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 0 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
+			if ($likeOrFav == 1) {
+				$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 0 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
+			}else {
+				$query = $this->db->query("UPDATE link_users_restaurants SET $stat = 1 WHERE ID_restaurant = $ID_restaurant AND ID_user = $ID_user");
+			}
 		}
 
 		if ($query) {
@@ -293,7 +321,7 @@ class User_model extends CI_Model {
 		if ($categories == 'restaurants') {
 			$SQL = "SELECT R.ID_restaurant, R.restaurant_name, R.location, R.open, R.close, R.photo FROM restaurants R WHERE restaurant_name LIKE '$keySearch'";	
 		} else {
-			$SQL = "SELECT foods.food_name, restaurants.restaurant_name FROM foods, restaurants WHERE foods.food_name LIKE '$keySearch' AND restaurants.ID_restaurant = foods.ID_restaurant";
+			$SQL = "SELECT foods.food_name, restaurants.restaurant_name, restaurants.ID_restaurant FROM foods, restaurants WHERE foods.food_name LIKE '$keySearch' AND restaurants.ID_restaurant = foods.ID_restaurant";
 		}
 		
 		$query = $this->db->query($SQL);
